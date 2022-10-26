@@ -5,7 +5,7 @@ layout (location = 2) in vec2 aTexCoord;
 
 out vec3 ourColor;
 out vec2 TexCoord;
-uniform float xOffset;
+uniform float xOffset; //ETO
 uniform float yOffset;
 uniform mat4 transform;
 
