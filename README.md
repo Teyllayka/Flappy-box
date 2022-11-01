@@ -1,8 +1,6 @@
-# Flappy Bird
-## Is a gambling machine that creates a game of chance for its customers. Slot machines are also known pejoratively as one-armed bandits because of the large mechanical levers affixed to the sides of early mechanical machines and the games' ability to empty players' pockets and wallets as thieves would
-### You can download here:
+# Flappy Box
+## This is a game where the player must control the flight of a box between rows of green pipes by touching the screen without hitting them.
+### You can download game here:
 1. Go to <a href="https://github.com/Teyllayka/flappybird/releases/tag/Game" target="_blank">Release</a>
-2. And follow further instructions
 #### Control:
 + Jump, press <kbd>Space</kbd>
-### Good luck in the game!
