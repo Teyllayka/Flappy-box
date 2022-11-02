@@ -2,6 +2,9 @@
 #include "include/GLFW/glfw3.h"
 
 #include <iostream>
+#include <fstream>
+#include <string>
+
 #include "Game/Shaders.h"
 #include "Game/stb_image.h"
 
@@ -13,11 +16,11 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void kickInput(GLFWwindow* window, float& dt, int& timer);
+void kickInput(GLFWwindow* window, float& dt, int& timer, float multip2);
 void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& yoffset, int& score, bool& game_state);
 void calculateHeight(float(&offsets)[3], float(&heights)[6], bool(&flags)[3]);
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
-
+double extractDouble(std::string text);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -192,6 +195,19 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    std::ifstream myfile("Game/speed.txt");
+    std::ifstream myfile2("Game/jump.txt");
+
+
+    std::string mystring;
+    myfile >> mystring; // pipe file's content into stream
+    std::string mystring2;
+    myfile2 >> mystring2; // pipe file's content into stream
+
+
+    float multip = extractDouble(mystring);
+    float multip2 = extractDouble(mystring2);
+
 
     float offsets[3];
     float yoffset = -0.0f;
@@ -222,7 +238,7 @@ int main()
         processInput(window);
         calculateHeight(offsets, heights, flags);
         checkForX(offsets, flags, heights, yoffset, score, game_state);
-        kickInput(window, dt, timer);
+        kickInput(window, dt, timer, multip2);
         if (yoffset <= -10 || game_state == false) {
             break;
         }
@@ -233,7 +249,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        dt+=1; //1 
+        dt+=1*multip; //1 
         timer++;
         yoffset -= boostFall * dt;
         offsets[0] -= 0.003f;
@@ -396,11 +412,11 @@ void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& y
 
 }
 
-void kickInput(GLFWwindow* window, float& dt, int& timer)
+void kickInput(GLFWwindow* window, float& dt, int& timer, float multip2)
 {
     if (timer >= 30) {
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            dt = -40; // 40
+            dt = -40 * multip2; // 40
             timer = 0;
         }
     }
@@ -415,4 +431,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+double extractDouble(std::string text)
+{
+    const std::string digits = "0123456789";
+    double x = 0.0;
+
+    unsigned ipos = text.find_first_of(digits);
+    if (ipos != std::string::npos) std::stringstream(text.substr(ipos)) >> x;
+    else                        std::cout << "No number found\n";
+
+    return x;
 }
