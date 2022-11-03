@@ -34,6 +34,8 @@ unsigned int texture[2];
 
 int main()
 {
+    srand((int)time(0));
+
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -213,16 +215,20 @@ int main()
 
     std::ifstream myfile("Game/pipespeed.txt");
     std::ifstream myfile2("Game/fallspeed.txt");
+    std::ifstream myfile3("Game/jumpspeed.txt");
 
 
     std::string mystring;
     myfile >> mystring; 
     std::string mystring2;
     myfile2 >> mystring2; 
+    std::string mystring3;
+    myfile3 >> mystring3;
 
 
     float multip = extractDouble(mystring);
     float multip2 = extractDouble(mystring2);
+    float multip3 = extractDouble(mystring3);
 
 
 
@@ -250,7 +256,10 @@ int main()
 
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            yspeed = -0.06;
+            if (yspeed > 0) {
+                yspeed = -0.06 * multip3;
+
+            }
         }
 
 
@@ -258,8 +267,6 @@ int main()
             break;
         }
 
-        // render
-        // ------
         glClearColor(0.0f, 0.6f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -360,8 +367,7 @@ int main()
 
 void calculateHeight(float(&offsets)[3], float(&heights)[6], bool(&flags)[3])
 {
-    srand((int)time(0));
-    float rndm1 = (rand() % 700 + 1); // 0.6
+    float rndm1 = (rand() % 500 + 1); 
     int rndm2 = rand() % 2 + 1;
 
     if (rndm2 == 1) {
@@ -371,23 +377,18 @@ void calculateHeight(float(&offsets)[3], float(&heights)[6], bool(&flags)[3])
         rndm1 = -(rndm1 / 1000);
     }
 
-    if (offsets[0] > 0.9f) { // first
+    if (offsets[0] > 0.8f) { // first
         heights[0] = rndm1;
         heights[1] = rndm1;
     }
-    if (offsets[1] > 0.9f) { // second
+    if (offsets[1] > 0.8f) { // second
         heights[2] = rndm1;
         heights[3] = rndm1;
-    }
-    if (offsets[2] > 0.9f) { // third
-        heights[4] = rndm1;
-        heights[5] = rndm1;
     }
 }
 
 void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& yoffset, int& score, bool& game_state)
 {
-    // delete windows32
     if (offsets[0] <= -2.0f) {
         offsets[0] = 1.0f;
         flags[0] = false;
@@ -396,12 +397,7 @@ void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& y
         offsets[1] = 1.0f;
         flags[1] = false;
     }
-    if (offsets[2] <= -1.0f) {
-        offsets[2] = -0.5f;
-    }
-    //std::cout << offsets[0] << std::endl;
     if (offsets[0] <= -0.45f && offsets[0] >= -1.05f) {
-        //std::cout << heights[0]+0.25 << "  " << yoffset / 10 << "  " << heights[1] - 0.25 << std::endl;
         if (yoffset / 10 > heights[0] + 0.21 || yoffset / 10 < heights[1] - 0.21) {
             game_state = false;
         }
@@ -424,11 +420,6 @@ void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& y
         std::cout << score << std::endl;
         flags[1] = true;
     }
-    //if (offsets[2] <= -0.4f && offsets[0] >= -1.05f) {
-    //    if (yoffset / 10 > heights[4] + 0.25 || yoffset / 10 < heights[5] - 0.25) {
-    //        std::cout << "hitted";
-    //    }
-    //}
 
 }
 
