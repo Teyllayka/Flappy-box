@@ -4,3 +4,4 @@
 1. Go to <a href="https://github.com/Teyllayka/flappybird/releases/tag/Game" target="_blank">Release</a>
 #### Control:
 + Jump, press <kbd>Space</kbd>
++ Exit, press <kbd>Esc</kbd>
