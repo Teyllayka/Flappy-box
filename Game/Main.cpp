@@ -19,7 +19,6 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& yoffset, int& score, bool& game_state);
 void calculateHeight(float(&offsets)[3], float(&heights)[6], bool(&flags)[3]);
-void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
 double extractDouble(std::string text);
 
 // settings
@@ -212,9 +211,25 @@ int main()
 
 
 
+    std::ifstream myfile("Game/pipespeed.txt");
+    std::ifstream myfile2("Game/fallspeed.txt");
 
-    float pipemovement = 0.6;
-    float fallmovement = 0.2;
+
+    std::string mystring;
+    myfile >> mystring; 
+    std::string mystring2;
+    myfile2 >> mystring2; 
+
+
+    float multip = extractDouble(mystring);
+    float multip2 = extractDouble(mystring2);
+
+
+
+
+
+    float pipemovement = multip;
+    float fallmovement = multip2;
     float yspeed = 0.0;
 
     
