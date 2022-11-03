@@ -2,6 +2,9 @@
 #include "include/GLFW/glfw3.h"
 
 #include <iostream>
+#include <fstream>
+#include <string>
+
 #include "Game/Shaders.h"
 #include "Game/stb_image.h"
 
@@ -11,13 +14,12 @@
 #include <map>
 
 
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
-void kickInput(GLFWwindow* window, float& dt, int& timer);
 void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& yoffset, int& score, bool& game_state);
 void calculateHeight(float(&offsets)[3], float(&heights)[6], bool(&flags)[3]);
-void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
-
+double extractDouble(std::string text);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -133,7 +135,7 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-    std::cout << glGetError() << std::endl;
+
 
 
     glBindVertexArray(VAO[0]);
@@ -194,35 +196,64 @@ int main()
 
 
     float offsets[3];
-    float yoffset = -0.0f;
-    float boostFall = 0.0025f;
-    float velocityUp = 0.5f;
-    float dt = 0;
-    int timer = 0;
+    float yoffset = .0f;
     float whitespace = .5f;
     float heights[6];
     bool flags[3];
     int score = 0;
     flags[0] = false;
     flags[1] = false;
-
     offsets[0] = 1.0f;
     offsets[1] = 2.5f;
     bool game_state = true;
+    float speed = 0.2;
 
 
 
 
+    std::ifstream myfile("Game/pipespeed.txt");
+    std::ifstream myfile2("Game/fallspeed.txt");
+
+
+    std::string mystring;
+    myfile >> mystring; 
+    std::string mystring2;
+    myfile2 >> mystring2; 
+
+
+    float multip = extractDouble(mystring);
+    float multip2 = extractDouble(mystring2);
+
+
+
+
+
+    float pipemovement = multip;
+    float fallmovement = multip2;
+    float yspeed = 0.0;
+
+    
+    double a = 0.0;
+
+    double deltaTime = 0.0;
+    double lastFrame = 0.0;
 
 
     while (!glfwWindowShouldClose(window))
     {
-        // input
-        // -----
-        processInput(window);
+        
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
+
         calculateHeight(offsets, heights, flags);
         checkForX(offsets, flags, heights, yoffset, score, game_state);
-        kickInput(window, dt, timer);
+
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            yspeed = -0.06;
+        }
+
+
         if (yoffset <= -10 || game_state == false) {
             break;
         }
@@ -233,16 +264,26 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        dt+=1; //1 
-        timer++;
-        yoffset -= boostFall * dt;
-        offsets[0] -= 0.003f;
-        offsets[1] -= 0.003f;
+        double currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        a += deltaTime * speed;
+
+
+        offsets[0] -= pipemovement * deltaTime;
+        offsets[1] -= pipemovement * deltaTime;
+
+
+        yspeed += fallmovement * deltaTime;
+
+        yoffset -= yspeed;
+
+
+
+
         std::string text = "Score: " + std::to_string(score);
-
         const char* str = text.c_str();
-        
-
         glfwSetWindowTitle(window, str);
 
 
@@ -316,11 +357,6 @@ int main()
 }
 
 
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
 
 void calculateHeight(float(&offsets)[3], float(&heights)[6], bool(&flags)[3])
 {
@@ -396,17 +432,6 @@ void checkForX(float(&offsets)[3], bool(&flags)[3], float(&heights)[6], float& y
 
 }
 
-void kickInput(GLFWwindow* window, float& dt, int& timer)
-{
-    if (timer >= 30) {
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            dt = -40; // 40
-            timer = 0;
-        }
-    }
-
-
-}
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -415,4 +440,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+double extractDouble(std::string text)
+{
+    const std::string digits = "0123456789";
+    double x = 0.0;
+
+    unsigned ipos = text.find_first_of(digits);
+    if (ipos != std::string::npos) std::stringstream(text.substr(ipos)) >> x;
+    else                        std::cout << "No number found\n";
+
+    return x;
 }
